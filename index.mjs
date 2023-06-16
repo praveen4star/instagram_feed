@@ -9,12 +9,11 @@ import { loadFilesSync } from '@graphql-tools/load-files';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { db } from './config/db.connection.js';
-import multer from 'multer';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
-
-const upload = multer({ dest: 'uploads/' });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,6 +53,7 @@ app.use(
   expressMiddleware(server),
 );
 
-await new Promise((resolve) => httpServer.listen({ port: process.env.PORT || 4000 }, resolve));
+const port = process.env.PORT || 4000;
+await new Promise((resolve) => httpServer.listen({ port }, resolve));
 
-console.log(`🚀 Server ready at http://localhost:4000`);
+console.log(`🚀 Server ready at http://localhost:${port}`);

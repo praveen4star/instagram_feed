@@ -3,9 +3,13 @@ type Query{
     Users : [User]
 }
 type Mutation {
-    createUser(username : String!, fullname : String!) : User
+    createUser(username : String!, fullname : String!) : Message
 }
 type User{
     username : String!
     fullname : String!
+}
+
+type Message{
+    message : String!
 }
