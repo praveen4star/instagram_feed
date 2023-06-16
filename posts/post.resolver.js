@@ -4,8 +4,8 @@ const {createWriteStream} = require('fs');
 
 module.exports = {
     Query: {
-        getAllPosts: async () => {
-            const posts = await PostsModel.getAllPosts();
+        getAllPosts: async (_, args) => {
+            const posts = await PostsModel.getAllPosts(args);
             return posts;
         },
         getPostById: async (_, args) => { 

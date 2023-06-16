@@ -1,7 +1,7 @@
 scalar Upload
 
 type Query{
-    getAllPosts : MessagPosts!
+    getAllPosts(offset : Int!, limit : Int!) : MessagPosts!
     getPostById(id : ID!) : MessagePost!
 }
 

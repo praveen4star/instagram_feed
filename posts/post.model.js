@@ -5,9 +5,10 @@ const { join, parse } = require('path');
 const {createWriteStream} = require('fs');
 
 
-async function getAllPosts() { 
+async function getAllPosts(args) { 
     try {
-
+        const offset = args.offset || 0;
+        const limit = args.limit || 10;
        const getPosts =  new Promise((resolve, reject) => { 
             postSchema.aggregate(
                 [
@@ -28,7 +29,9 @@ async function getAllPosts() {
                             fileUrl: 1,
                             comments : 1
                         }
-                    }
+                    },
+                    { $skip: offset },
+                    { $limit: limit }
                         
                 ]
             ).exec((err, results) => {
