@@ -9,6 +9,8 @@ import { loadFilesSync } from '@graphql-tools/load-files';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { db } from './config/db.connection.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -42,4 +44,4 @@ app.use(
 
 await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve));
 
-console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath }`);
+console.log(`🚀 Server ready at http://localhost:4000`);

@@ -5,5 +5,11 @@ module.exports = {
         Users: async () => {
             return await UserModel.getAllUsers();
          }
+    },
+    Mutation: {
+        createUser: async (parent, args) => { 
+            
+            return UserModel.createUser(args)
+        }
     }
 }

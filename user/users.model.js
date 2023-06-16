@@ -1,24 +1,17 @@
-
-const Users = [
-    {
-        id: 1,
-        name: 'John',
-        email: 'abc@gmail.com',
-        password: null,
-    },
-    {
-        id: 2,
-        name: 'Doe',
-        email: 'ac2@c.com',
-        password: "2x",
-    }
-];
-
+const { userSchema } = require('../model/user.model');
 
 async function getAllUsers() {
-    return Users;
+    const users = await userSchema.find({}, { _id: 0, __v: 0 });
+    // console.log(users);
+    return users;
+}
+async function createUser(args) { 
+    const user = new userSchema(args);
+    await user.save();
+    return user;
 }
 
 module.exports = {
-    getAllUsers
+    getAllUsers,
+    createUser
 }
