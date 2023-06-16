@@ -84,8 +84,21 @@ async function getPostById(id) {
         })
     });
 }
+
+async function updatePostById(id, args) {
+    try {
+
+        const isUpdated = await postSchema.updateOne({ _id: id }, { $set: args });
+        return getPostById(id);
+    }
+    catch (e) {
+        return e.message;
+    }
+    
+}
 module.exports = {
     getAllPosts,
     createPost,
-    getPostById
+    getPostById,
+    updatePostById 
 }

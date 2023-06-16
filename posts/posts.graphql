@@ -6,6 +6,7 @@ type Query{
 
 type Mutation {
     createPost(title : String, description : String, username : String!) : Post
+    updatePost(title : String, description : String, id : ID!) : Post
 }
 type Post{
     id : ID!

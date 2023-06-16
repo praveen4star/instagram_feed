@@ -14,6 +14,9 @@ module.exports = {
     Mutation: {
         createPost: async (_, args) => {
             return await PostsModel.createPost(args);
-         }
+        },
+        updatePost: async (_, args) => { 
+            return await PostsModel.updatePostById(args.id, args);
+        }
     }
 }
