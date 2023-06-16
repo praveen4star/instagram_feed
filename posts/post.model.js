@@ -1,5 +1,9 @@
 const postSchema = require('../model/post.model');
 const mongoose = require('mongoose');
+const userSchema = require('../model/user.model');
+const { join, parse } = require('path');
+const {createWriteStream} = require('fs');
+
 
 async function getAllPosts() { 
     try {
@@ -21,7 +25,8 @@ async function getAllPosts() {
                             id: "$_id",
                             title: 1,
                             description: 1,
-                            user : "$user"
+                            user: "$user",
+                            fileUrl : 1
                         }
                     }
                         
@@ -40,9 +45,27 @@ async function getAllPosts() {
 }
 async function createPost(args) { 
     try {
+        console.log(args);
+        let fileUrl = "";
+        if (args.file) {
+            console.log(args.file);
+            const file = args.file.file;
+            const { createReadStream, filename, mimetype, encoding } = await file;
+            let { ext, name } = parse(filename);
+            
+            const stream = createReadStream();
+            name = `single${Math.floor((Math.random() * 1000000) + 1)}`;
+            let url = join(__dirname, `../uploads/${name}-${Date.now()}${ext}`);
+            const imageStream = await createWriteStream(url);
+            await stream.pipe(imageStream);
+            const baseUrl = `http://localhost:4000`;
+            url = `${baseUrl}/${url.split('uploads')[1]}`;
+            fileUrl = url;
+            console.log(fileUrl);
+        }
         const user = await userSchema.findOne({ username: args.username });
         if (!user) throw new Error('User not found');
-        const post = new postSchema(args);
+        const post = new postSchema({fileUrl : fileUrl, title : args.title, description : args.description, username : args.username});
         await post.save();
         post.user = user;
         return post;
@@ -72,7 +95,8 @@ async function getPostById(id) {
                         id: "$_id",
                         title: 1,
                         description: 1,
-                        user : "$user"
+                        user: "$user",
+                        fileUrl : 1
                     }
                 }
                     
@@ -88,10 +112,28 @@ async function getPostById(id) {
 async function updatePostById(id, args) {
     try {
 
-        const isUpdated = await postSchema.updateOne({ _id: id }, { $set: args });
-        return getPostById(id);
+        if (args.file) {
+            console.log(args.file);
+            const file = args.file.file;
+            const { createReadStream, filename, mimetype, encoding } = await file;
+            let { ext, name } = parse(filename);
+            
+            const stream = createReadStream();
+            name = `single${Math.floor((Math.random() * 1000000) + 1)}`;
+            let url = join(__dirname, `../uploads/${name}-${Date.now()}${ext}`);
+            const imageStream = await createWriteStream(url);
+            await stream.pipe(imageStream);
+            const baseUrl = `http://localhost:4000`;
+            url = `${baseUrl}/${url.split('uploads')[1]}`;
+            fileUrl = url;
+            delete args.file;
+            args.fileUrl = fileUrl;
+        }
+        await postSchema.updateOne({ _id: args.id }, {$set : args});
+        return getPostById(args.id);
     }
     catch (e) {
+        console.log(e);
         return e.message;
     }
     

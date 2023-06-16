@@ -5,6 +5,7 @@ const postSchema = new Schema(
     {
         title: String,
         description: String,
+        fileUrl : String,
         username : {type : String, required : true},
     },
     {

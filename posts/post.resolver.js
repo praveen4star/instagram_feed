@@ -1,4 +1,6 @@
+const { join, parse } = require('path');
 const PostsModel = require('./post.model')
+const {createWriteStream} = require('fs');
 
 module.exports = {
     Query: {
@@ -13,10 +15,11 @@ module.exports = {
     },
     Mutation: {
         createPost: async (_, args) => {
+           
             return await PostsModel.createPost(args);
         },
         updatePost: async (_, args) => { 
             return await PostsModel.updatePostById(args.id, args);
-        }
+        },
     }
 }

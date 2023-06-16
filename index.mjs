@@ -10,6 +10,11 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { db } from './config/db.connection.js';
+import multer from 'multer';
+
+import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
+
+const upload = multer({ dest: 'uploads/' });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,15 +31,21 @@ const httpServer = http.createServer(app);
 const schema = makeExecutableSchema(
   {
       typeDefs: typeDefs,
-      resolvers: resolversArray
+      resolvers: resolversArray,
   }
 )
 // Set up Apollo Server
 const server = new ApolloServer({
-  schema : schema,
+  Upload: graphqlUploadExpress,
+  schema: schema,
+  csrfPrevention: true,
+  cache: 'bounded',
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 await server.start();
+
+app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 1 }));
+
 
 app.use(
   cors(),
