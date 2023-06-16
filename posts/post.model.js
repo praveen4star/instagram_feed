@@ -43,26 +43,25 @@ async function getAllPosts() {
         return e.message;
     }
 }
+async function getFileUrl(files) { 
+    if (!files || !files.file) return "";
+    const file = files.file;
+    const { createReadStream, filename, mimetype, encoding } = await file;
+    let { ext, name } = parse(filename);
+    
+    const stream = createReadStream();
+    name = `single${Math.floor((Math.random() * 1000000) + 1)}`;
+    let url = join(__dirname, `../uploads/${name}-${Date.now()}${ext}`);
+    const imageStream = await createWriteStream(url);
+    await stream.pipe(imageStream);
+    const baseUrl = `http://localhost:4000`;
+    url = `${baseUrl}/uploads${url.split('uploads')[1]}`;
+    return url;
+}
 async function createPost(args) { 
     try {
         console.log(args);
-        let fileUrl = "";
-        if (args.file) {
-            console.log(args.file);
-            const file = args.file.file;
-            const { createReadStream, filename, mimetype, encoding } = await file;
-            let { ext, name } = parse(filename);
-            
-            const stream = createReadStream();
-            name = `single${Math.floor((Math.random() * 1000000) + 1)}`;
-            let url = join(__dirname, `../uploads/${name}-${Date.now()}${ext}`);
-            const imageStream = await createWriteStream(url);
-            await stream.pipe(imageStream);
-            const baseUrl = `http://localhost:4000`;
-            url = `${baseUrl}/${url.split('uploads')[1]}`;
-            fileUrl = url;
-            console.log(fileUrl);
-        }
+        let fileUrl = await getFileUrl(args.file);
         const user = await userSchema.findOne({ username: args.username });
         if (!user) throw new Error('User not found');
         const post = new postSchema({fileUrl : fileUrl, title : args.title, description : args.description, username : args.username});
@@ -111,24 +110,11 @@ async function getPostById(id) {
 
 async function updatePostById(id, args) {
     try {
-
         if (args.file) {
-            console.log(args.file);
-            const file = args.file.file;
-            const { createReadStream, filename, mimetype, encoding } = await file;
-            let { ext, name } = parse(filename);
-            
-            const stream = createReadStream();
-            name = `single${Math.floor((Math.random() * 1000000) + 1)}`;
-            let url = join(__dirname, `../uploads/${name}-${Date.now()}${ext}`);
-            const imageStream = await createWriteStream(url);
-            await stream.pipe(imageStream);
-            const baseUrl = `http://localhost:4000`;
-            url = `${baseUrl}/${url.split('uploads')[1]}`;
-            fileUrl = url;
+            args.fileUrl = await getFileUrl(args.file);
             delete args.file;
-            args.fileUrl = fileUrl;
         }
+
         await postSchema.updateOne({ _id: args.id }, {$set : args});
         return getPostById(args.id);
     }
