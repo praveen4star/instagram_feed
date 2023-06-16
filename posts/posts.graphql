@@ -1,0 +1,11 @@
+
+type Query{
+    getAllPosts : [Post]
+}
+
+type Post{
+    id : ID!
+    title : String!
+    description : String!
+    user : User!
+}
