@@ -4,6 +4,7 @@ async function getAllUsers() {
     const users = await userSchema.find({}, { _id: 0, __v: 0 });
     return users;
 }
+
 async function createUser(args) { 
     try {
         /** duplicate user  */

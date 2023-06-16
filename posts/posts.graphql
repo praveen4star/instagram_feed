@@ -1,18 +1,32 @@
 scalar Upload
 
 type Query{
-    getAllPosts : [Post]
-    getPostById(id : ID!) : Post
+    getAllPosts : MessagPosts!
+    getPostById(id : ID!) : MessagePost!
 }
 
 type Mutation {
-    createPost(file : Upload!,title : String, description : String, username : String!) : Post
-    updatePost(title : String, description : String, id : ID!, file : Upload) : Post
+    createPost(file : Upload!, caption : String, username : String!) : MessagePost!
+    updatePost(file : Upload, caption : String, id : ID!, username : String!) : MessagePost!
+    addComment(comment : String!, id : ID!, username : String!) : MessagePost!
 }
 type Post{
     id : ID!
-    title : String
-    description : String
-    fileUrl : String
+    caption : String
+    fileUrl : String!
     user : User!
+    comments : [Comment]
+}
+type Comment{
+    comment : String!,
+    username : String!
+}
+type MessagPosts{
+    message : String!
+    posts : [Post]
+}
+
+type MessagePost{
+    message : String!
+    post : Post
 }

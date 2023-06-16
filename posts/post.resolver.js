@@ -21,5 +21,8 @@ module.exports = {
         updatePost: async (_, args) => { 
             return await PostsModel.updatePostById(args.id, args);
         },
+        addComment: async (_, args) => { 
+            return await PostsModel.addComment(args);
+        }
     }
 }

@@ -8,7 +8,7 @@ const {createWriteStream} = require('fs');
 async function getAllPosts() { 
     try {
 
-        return new Promise((resolve, reject) => { 
+       const getPosts =  new Promise((resolve, reject) => { 
             postSchema.aggregate(
                 [
                     {
@@ -23,10 +23,10 @@ async function getAllPosts() {
                     {
                         $project: {
                             id: "$_id",
-                            title: 1,
-                            description: 1,
+                            caption : 1,
                             user: "$user",
-                            fileUrl : 1
+                            fileUrl: 1,
+                            comments : 1
                         }
                     }
                         
@@ -35,12 +35,13 @@ async function getAllPosts() {
                 if (err) reject(err);
                 resolve(results)
             })
-        });
+       });
+        const posts = await getPosts;
+        return { message: "success", posts: posts };
         
     }
     catch (e) {
-        console.log(e);
-        return e.message;
+        return { message: e.message, posts: [] };
     }
 }
 async function getFileUrl(files) { 
@@ -60,18 +61,16 @@ async function getFileUrl(files) {
 }
 async function createPost(args) { 
     try {
-        console.log(args);
         let fileUrl = await getFileUrl(args.file);
         const user = await userSchema.findOne({ username: args.username });
         if (!user) throw new Error('User not found');
-        const post = new postSchema({fileUrl : fileUrl, title : args.title, description : args.description, username : args.username});
+        const post = new postSchema({fileUrl : fileUrl, caption : args.caption, username : args.username});
         await post.save();
         post.user = user;
-        return post;
+        return { message: "success", post: post };
     }
     catch (e) {
-        console.log(e);
-        return e.message;
+        return { message: e.message, post: null };
     }
 }
 
@@ -79,7 +78,7 @@ async function getPostById(id) {
     return new Promise((resolve, reject) => { 
         postSchema.aggregate(
             [
-                {$match : {_id : mongoose.Types.ObjectId(id)}},
+                { $match : {_id : mongoose.Types.ObjectId(id)}},
                 {
                     $lookup: {
                         from: 'users',
@@ -92,41 +91,72 @@ async function getPostById(id) {
                 {
                     $project: {
                         id: "$_id",
-                        title: 1,
-                        description: 1,
+                        caption : 1,
                         user: "$user",
-                        fileUrl : 1
+                        fileUrl: 1,
+                        comments : 1
                     }
                 }
                     
             ]
         ).exec((err, results) => {
             if (err) reject(err);
-            // console.log(results);
             resolve(results[0])
         })
     });
 }
-
-async function updatePostById(id, args) {
+async function postById(id) {
     try {
-        if (args.file) {
-            args.fileUrl = await getFileUrl(args.file);
-            delete args.file;
-        }
-
-        await postSchema.updateOne({ _id: args.id }, {$set : args});
-        return getPostById(args.id);
+        const post = await getPostById(id);
+        if(!post) throw new Error('Post not found');
+        return { message: "success", post: post };
     }
     catch (e) {
-        console.log(e);
-        return e.message;
+        return { message: e.message, post: null };
+    }
+}
+async function updatePostById(id, args) {
+    try {
+        const isPost = await postSchema.findOne({ _id:id });
+        if (!isPost) throw new Error('Post not found');
+        
+        if (isPost.username != args.username) throw new Error('You are not authorized to update this post');
+        
+        if (args.file) {
+            isPost.fileUrl = await getFileUrl(args.file);
+            delete args.file;
+        }
+        if(args.hasOwnProperty('caption'))
+            isPost.caption = args.caption;
+
+        await isPost.save();
+        return { message : "success", post : await getPostById(id) };
+    }
+    catch (e) {
+        return { message: e.message, post: null };
     }
     
+}
+
+async function addComment(args) {
+    try{
+        const post = await postSchema.findOne({ _id: args.id });
+        if (!post) throw new Error('Post not found');
+        const user = await userSchema.findOne({ username: args.username });
+        if (!user) throw new Error('User not found');
+        post.comments.push({ username: args.username, comment: args.comment });
+        await post.save();
+        return { message : "success", post : await getPostById(args.id) };
+    }
+    catch (e) {
+        return { message : e.message, post : null}
+    }
+
 }
 module.exports = {
     getAllPosts,
     createPost,
-    getPostById,
-    updatePostById 
+    getPostById : postById,
+    updatePostById,
+    addComment
 }

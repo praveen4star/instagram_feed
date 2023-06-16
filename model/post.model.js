@@ -3,10 +3,15 @@ const Schema = db.Schema;
 
 const postSchema = new Schema(
     {
-        title: String,
-        description: String,
-        fileUrl : String,
+        caption : {type : String},
+        fileUrl : { type : String, required : true},
         username : {type : String, required : true},
+        comments: [
+            {
+                comment: { type: String, required: true },
+                username: { type: String, required: true }
+            }
+        ],
     },
     {
         timestamps: true,
