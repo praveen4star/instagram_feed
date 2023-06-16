@@ -14,4 +14,4 @@ const UserSchema = new db.Schema(
 );
 const users = db.model("User", UserSchema);
 
-module.exports = {userSchema : users};
+module.exports = users;
