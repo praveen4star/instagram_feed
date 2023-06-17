@@ -40,6 +40,7 @@ const server = new ApolloServer({
   csrfPrevention: true,
   cache: 'bounded',
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  introspection : true,
 });
 await server.start();
 
