@@ -26,7 +26,7 @@ async function getAllPosts(args) {
                             id: "$_id",
                             caption : 1,
                             user: "$user",
-                            fileUrl: 1,
+                            fileUrl: {$concat : [process.env.BASE_URL, "$fileUrl"]},
                             comments : 1
                         }
                     },
@@ -59,7 +59,7 @@ async function getFileUrl(files) {
     const imageStream = await createWriteStream(url);
     await stream.pipe(imageStream);
     const baseUrl = process.env.BASE_URL || 'http://localhost:4000';
-    url = `${baseUrl}/uploads${url.split('uploads')[1]}`;
+    url = `/uploads${url.split('uploads')[1]}`;
     return url;
 }
 async function createPost(args) { 
