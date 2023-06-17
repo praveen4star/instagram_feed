@@ -58,7 +58,7 @@ async function getFileUrl(files) {
     let url = join(__dirname, `../uploads/${name}-${Date.now()}${ext}`);
     const imageStream = await createWriteStream(url);
     await stream.pipe(imageStream);
-    const baseUrl = process.env.BASE_URL;
+    const baseUrl = process.env.BASE_URL || 'http://localhost:4000';
     url = `${baseUrl}/uploads${url.split('uploads')[1]}`;
     return url;
 }
