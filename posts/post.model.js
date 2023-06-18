@@ -70,6 +70,7 @@ async function createPost(args) {
         const post = new postSchema({fileUrl : fileUrl, caption : args.caption, username : args.username});
         await post.save();
         post.user = user;
+        post.fileUrl = `${process.env.BASE_URL}${fileUrl}`;
         return { message: "success", post: post };
     }
     catch (e) {
@@ -96,7 +97,7 @@ async function getPostById(id) {
                         id: "$_id",
                         caption : 1,
                         user: "$user",
-                        fileUrl: 1,
+                        fileUrl: {$concat : [process.env.BASE_URL, "$fileUrl"]},
                         comments : 1
                     }
                 }
